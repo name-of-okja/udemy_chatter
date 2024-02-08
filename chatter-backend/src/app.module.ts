@@ -33,6 +33,7 @@ import { LoggerModule } from 'nestjs-pino';
               ? undefined
               : {
                   target: 'pino-pretty',
+                  options: { singleLine: true },
                 },
             level: isProduction ? 'info' : 'debug',
           },
