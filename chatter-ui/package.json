@@ -28,10 +28,11 @@
     "web-vitals": "^3.5.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"react-scripts start\" \"graphql-codegen --config codegen.ts --watch\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -51,5 +52,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/client-preset": "4.2.4",
+    "@parcel/watcher": "^2.4.1",
+    "concurrently": "^8.2.2"
   }
 }

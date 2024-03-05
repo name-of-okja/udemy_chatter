@@ -4,6 +4,7 @@ import { useMe } from '../../hooks/useMe';
 import { authenticatedVar } from '../../constants/authenticated';
 import { snackVar } from '../../constants/snack';
 import { UNKNOWN_ERROR_SNACK_MESSAGE } from '../../constants/errors';
+import { usePath } from '../../hooks/usePath';
 
 interface GuardProps {
   children: JSX.Element;
@@ -11,7 +12,7 @@ interface GuardProps {
 
 const Guard = ({ children }: GuardProps) => {
   const { data: user, error } = useMe();
-
+  const { path } = usePath();
   useEffect(() => {
     if (user) {
       authenticatedVar(true);
@@ -24,13 +25,7 @@ const Guard = ({ children }: GuardProps) => {
     }
   }, [error]);
 
-  return (
-    <>
-      {excludedRoutes.includes(window.location.pathname)
-        ? children
-        : user && children}
-    </>
-  );
+  return <>{excludedRoutes.includes(path) ? children : user && children}</>;
 };
 
 export default Guard;
