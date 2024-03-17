@@ -15,7 +15,10 @@ interface ChatListitemProps {
   selected: boolean;
 }
 
-const ChatListItem = ({ chat: { name, _id }, selected }: ChatListitemProps) => {
+const ChatListItem = ({
+  chat: { name, _id, latestMessage },
+  selected,
+}: ChatListitemProps) => {
   return (
     <>
       <ListItem alignItems='flex-start' disablePadding>
@@ -36,9 +39,9 @@ const ChatListItem = ({ chat: { name, _id }, selected }: ChatListitemProps) => {
                   variant='body2'
                   color='text.primary'
                 >
-                  Ali Connors
+                  {latestMessage?.user.username || ''}
                 </Typography>
-                {" — I'll be in your neighborhood doing errands this…"}
+                {' ' + (latestMessage?.content || '')}
               </>
             }
           />

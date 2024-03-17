@@ -60,7 +60,12 @@ const Chat = () => {
                 new Date(messageB.createdAt).getTime()
             )
             .map((message) => (
-              <Grid container alignItems='center' marginBottom='1rem'>
+              <Grid
+                container
+                alignItems='center'
+                marginBottom='1rem'
+                key={message._id}
+              >
                 <Grid item xs={2} lg={1}>
                   <Avatar src='' sx={{ width: 52, height: 52 }} />
                 </Grid>

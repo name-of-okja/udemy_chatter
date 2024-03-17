@@ -1,5 +1,5 @@
 import { Button, Stack, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMe } from '../../hooks/useMe';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,9 +7,16 @@ interface AuthProps {
   submitLabel: string;
   onSubmit: (credentials: { email: string; password: string }) => Promise<void>;
   error?: string;
+  extraFields?: React.ReactNode[];
   children: React.ReactNode;
 }
-const Auth = ({ submitLabel, onSubmit, error, children }: AuthProps) => {
+const Auth = ({
+  submitLabel,
+  onSubmit,
+  error,
+  extraFields,
+  children,
+}: AuthProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { data } = useMe();
@@ -40,6 +47,7 @@ const Auth = ({ submitLabel, onSubmit, error, children }: AuthProps) => {
         helperText={error}
         onChange={(e) => setEmail(e.target.value)}
       />
+      {extraFields}
       <TextField
         type='password'
         label='Password'
