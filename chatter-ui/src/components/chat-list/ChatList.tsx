@@ -5,12 +5,16 @@ import { useEffect, useState } from 'react';
 import ChatListAdd from './chat-list-add/ChatListAdd';
 import { useGetChats } from '../../hooks/useGetChats';
 import { usePath } from '../../hooks/usePath';
+import { useMessageCreated } from '../../hooks/useMessageCreated';
 
 const ChatList = () => {
   const [chatListAddVisible, setChatListAddVisible] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState('');
   const { data } = useGetChats();
   const { path } = usePath();
+
+  // Subscription
+  useMessageCreated({ chatIds: data?.chats.map((chat) => chat._id) || [] });
 
   useEffect(() => {
     const pathSplit = path.split('chats/');
@@ -37,15 +41,25 @@ const ChatList = () => {
             overflow: 'auto',
           }}
         >
-          {data?.chats
-            .map((chat) => (
-              <ChatListItem
-                key={chat._id}
-                chat={chat}
-                selected={chat._id === selectedChatId}
-              />
-            ))
-            .reverse()}
+          {data?.chats &&
+            [...data.chats]
+              .sort((a, b) => {
+                if (!a.latestMessage) {
+                  return -1;
+                }
+                return (
+                  new Date(a.latestMessage?.createdAt).getTime() -
+                  new Date(b.latestMessage?.createdAt).getTime()
+                );
+              })
+              .map((chat) => (
+                <ChatListItem
+                  key={chat._id}
+                  chat={chat}
+                  selected={chat._id === selectedChatId}
+                />
+              ))
+              .reverse()}
         </List>
       </Stack>
     </>
