@@ -15,6 +15,9 @@ import SendIcon from '@mui/icons-material/Send';
 import { useCreateMessage } from '../../hooks/useCreateMessage';
 import { useEffect, useRef, useState } from 'react';
 import { useGetMessages } from '../../hooks/useGetMessages';
+import { PAGE_SIZE } from '../../constants/page-size';
+import { useCountMessages } from '../../hooks/useCountMessages';
+import InfiniteScroll from 'react-infinite-scroller';
 
 const Chat = () => {
   const params = useParams();
@@ -23,18 +26,26 @@ const Chat = () => {
 
   const [createMessage] = useCreateMessage();
   const { data } = useGetChat({ _id: chatId });
-  const { data: messages } = useGetMessages({ chatId });
+  const { data: messages, fetchMore } = useGetMessages({
+    chatId,
+    skip: 0,
+    limit: PAGE_SIZE,
+  });
+  const { messagesCount, countMessages } = useCountMessages(chatId);
 
   const divRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
 
-  const scrollToBottom = () =>
-    divRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = () => divRef.current?.scrollIntoView();
 
   useEffect(() => {
     setMessage('');
     scrollToBottom();
-  }, [location, messages]);
+  }, [location.pathname, messages]);
+
+  useEffect(() => {
+    countMessages();
+  }, [countMessages]);
 
   const handleCreateMessage = async () => {
     await createMessage({
@@ -50,41 +61,56 @@ const Chat = () => {
     <Stack sx={{ height: '100%', justifyContent: 'space-between' }}>
       <h1>{data?.chat.name}</h1>
       <Box sx={{ maxHeight: '70vh', overflow: 'auto' }}>
-        {messages &&
-          [...messages.messages]
-            .sort(
-              (messageA, messageB) =>
-                new Date(messageA.createdAt).getTime() -
-                new Date(messageB.createdAt).getTime()
-            )
-            .map((message) => (
-              <Grid
-                container
-                alignItems='center'
-                marginBottom='1rem'
-                key={message._id}
-              >
-                <Grid item xs={2} lg={1}>
-                  <Avatar src='' sx={{ width: 52, height: 52 }} />
-                </Grid>
-                <Grid item xs={10} lg={11}>
-                  <Stack>
-                    <Paper sx={{ width: 'fit-content' }}>
-                      <Typography sx={{ padding: '0.9rem' }}>
-                        {message.content}
+        <InfiniteScroll
+          pageStart={0}
+          isReverse={true}
+          loadMore={() =>
+            fetchMore({ variables: { skip: messages?.messages.length ?? 0 } })
+          }
+          hasMore={
+            messages && messagesCount
+              ? messages.messages.length < messagesCount
+              : false
+          }
+          useWindow={false}
+        >
+          {messages &&
+            [...messages.messages]
+              .sort(
+                (messageA, messageB) =>
+                  new Date(messageA.createdAt).getTime() -
+                  new Date(messageB.createdAt).getTime()
+              )
+              .map((message) => (
+                <Grid
+                  container
+                  alignItems='center'
+                  marginBottom='1rem'
+                  key={message._id}
+                >
+                  <Grid item xs={2} lg={1}>
+                    <Avatar src='' sx={{ width: 52, height: 52 }} />
+                  </Grid>
+                  <Grid item xs={10} lg={11}>
+                    <Stack>
+                      <Paper sx={{ width: 'fit-content' }}>
+                        <Typography sx={{ padding: '0.9rem' }}>
+                          {message.content}
+                        </Typography>
+                      </Paper>
+                      <Typography
+                        variant='caption'
+                        sx={{ marginLeft: '0.25rem' }}
+                      >
+                        {new Date(message.createdAt).toLocaleTimeString()} -{' '}
+                        {new Date(message.createdAt).toLocaleDateString()}
                       </Typography>
-                    </Paper>
-                    <Typography
-                      variant='caption'
-                      sx={{ marginLeft: '0.25rem' }}
-                    >
-                      {new Date(message.createdAt).toLocaleTimeString()}
-                    </Typography>
-                  </Stack>
+                    </Stack>
+                  </Grid>
                 </Grid>
-              </Grid>
-            ))}
-        <div ref={divRef}></div>
+              ))}
+          <div ref={divRef}></div>
+        </InfiniteScroll>
       </Box>
       <Paper
         sx={{
