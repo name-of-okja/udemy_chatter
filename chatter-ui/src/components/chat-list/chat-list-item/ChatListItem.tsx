@@ -29,7 +29,7 @@ const ChatListItem = ({
           selected={selected}
         >
           <ListItemAvatar>
-            <Avatar alt='Remy Sharp' src='/static/images/avatar/1.jpg' />
+            <Avatar alt='Remy Sharp' src={latestMessage?.user.imageUrl} />
           </ListItemAvatar>
           <ListItemText
             primary={name}
@@ -45,9 +45,7 @@ const ChatListItem = ({
                 >
                   {latestMessage?.user.username || ''}
                 </Typography>
-                <div className='content'>
-                  {' ' + (latestMessage?.content || '')}
-                </div>
+                <div className='content'>{latestMessage?.content || ''}</div>
               </Box>
             }
           />

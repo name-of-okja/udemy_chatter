@@ -45,8 +45,6 @@ import { Request } from 'express';
       imports: [AuthModule],
       inject: [AuthService],
     }),
-    DatabaseModule,
-    UsersModule,
     LoggerModule.forRootAsync({
       useFactory: (config: ConfigService) => {
         const isProduction = config.get('NODE_ENV') === 'prod';
@@ -64,6 +62,8 @@ import { Request } from 'express';
       },
       inject: [ConfigService],
     }),
+    DatabaseModule,
+    UsersModule,
     AuthModule,
     ChatsModule,
     PubSubModule,
