@@ -1,10 +1,34 @@
 import { Global, Module } from '@nestjs/common';
 import { PUB_SUB } from '../constants/injection-tokens';
+import { ConfigService } from '@nestjs/config';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import Redis from 'ioredis';
 import { PubSub } from 'graphql-subscriptions';
+import { reviver } from './reviver';
 
 @Global()
 @Module({
-  providers: [{ provide: PUB_SUB, useValue: new PubSub() }],
+  providers: [
+    {
+      provide: PUB_SUB,
+      useFactory: (config: ConfigService) => {
+        if (config.get('NODE_ENV') === 'production') {
+          const options = {
+            host: config.getOrThrow('REDIS_HOST'),
+            port: config.getOrThrow('REDIS_PORT'),
+          };
+          return new RedisPubSub({
+            publisher: new Redis(options),
+            subscriber: new Redis(options),
+            reviver: reviver,
+          });
+        }
+
+        return new PubSub();
+      },
+      inject: [ConfigService],
+    },
+  ],
   exports: [PUB_SUB],
 })
 export class PubSubModule {}
